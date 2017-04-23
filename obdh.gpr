@@ -1,0 +1,21 @@
+-- $Id: scada.gpr 32 2009-10-19 15:57:24Z jpuente $
+project Scada is
+
+   for Main use ("scada.adb");
+
+   package Builder is
+      for Default_Switches ("ada") use ("-g");
+   end Builder;
+
+   package Compiler is
+      for Default_Switches ("ada") use ("-g", "-gnat05");
+   end Compiler;
+
+   package Ide is
+      for Vcs_Kind use "Subversion";
+      for Vcs_Repository_Root use "https://polaris.dit.upm.es/repos-str/strl";
+      for Vcs_Patch_Root use "scada_tasking";
+   end Ide;
+
+end Scada;
+
