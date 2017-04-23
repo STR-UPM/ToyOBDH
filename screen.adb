@@ -6,8 +6,8 @@
 -- the GNU General Public License (GPL).
 -- See http://www.gnu.org/licenses/licenses.html#GPL for the details
 --------------------------------------------------------------------------------
-with Parameters, Temperatures, Measurements;
-use  Parameters, Temperatures, Measurements;
+with Parameters, Measurements;
+use  Parameters, Measurements;
 with Ada.Text_IO, Ada.Calendar, Ada.Calendar.Formatting;
 with Ada.Real_Time;
 package body Screen is
@@ -97,7 +97,7 @@ package body Screen is
 
       procedure Put(T: Temperature) is
       begin
-         Temperature_IO.Put(T,3,2,0);
+         Temperature_IO.Put(T);
       end Put;
 
       procedure Put(M : Measurement) is
@@ -106,9 +106,10 @@ package body Screen is
          TS : Time_Span;
       begin
          Split(M.Timestamp,SC,TS);
-         Ada.Text_IO.Put(Seconds_Count'Image(SC));
-         Ada.Text_IO.Put(Duration'Image(To_Duration(TS)));
+         Ada.Text_IO.Put(SC'Img);
+--           Ada.Text_IO.Put(To_Duration(TS)'Img);
          Put(M.Value);
+         Ada.Text_IO.New_line;
       end Put;
 
       procedure Put(T : Calendar.Time) is

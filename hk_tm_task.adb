@@ -1,15 +1,16 @@
 --------------------------------------------------------------------------------
 -- $Id$
--- Project SCADA
--- Check task body
--- Copyright (c) 2008 Juan Antonio de la Puente <jpuente@dit.upm.es>
+-- Project OBSW
+-- HK task task body
+-- Copyright (c) 2017 Juan Antonio de la Puente <jpuente@dit.upm.es>
 -- Permission to copy and modify are granted under the terms of
 -- the GNU General Public License (GPL).
 -- See http://www.gnu.org/licenses/licenses.html#GPL for the details
 --------------------------------------------------------------------------------
 with Buffer, Screen, Measurements;
-package body Check_Task is -- sporadic
---------------------
+package body HK_TM_Task is -- sporadic
+
+   --------------------
    -- Specifications --
    --------------------
 
@@ -80,7 +81,7 @@ package body Check_Task is -- sporadic
          Screen.Put("------ stored measurements ------");
          Screen.New_Line;
          while not Buffer.Empty loop
-            Buffer.Extract(M);
+            Buffer.Get(M);
             Screen.Put(M);
             Screen.New_Line;
          end loop;
@@ -90,4 +91,4 @@ package body Check_Task is -- sporadic
 
    end OPCS;
 
-end Check_Task;
+end HK_TM_Task;

@@ -1,36 +1,49 @@
 -- $Id$
--- Project SCADA
+--------------------------------------------------------------------------------
+-- Project OBSW
 -- Buffer for measurement data
--- Copyright (c) 2008 Juan Antonio de la Puente <jpuente@dit.upm.es>
+-- Copyright (c) 2017 Juan Antonio de la Puente <jpuente@dit.upm.es>
 -- Permission to copy and modify are granted under the terms of
 -- the GNU General Public License (GPL).
 -- See http://www.gnu.org/licenses/licenses.html#GPL for the details
 --------------------------------------------------------------------------------
 with Measurements; use  Measurements;
-with Buffers;
 with Ada.Text_IO; use Ada.Text_IO;
 package body Buffer is
-   package Measurement_Buffers is new Buffers(Measurement);
-   use Measurement_Buffers;
 
-   -- OBCS
+   -- OBCS spec
+   type Index is mod Capacity;
+   type Store is array (Index) of Measurement;
+
    protected OBCS is
-      procedure Insert(M: in  Measurement);
-      procedure Extract (M: out Measurement);
+      procedure Put (M: in  Measurement);
+      procedure Get (M: out Measurement);
+      function  Last  return Measurement;
       function  Empty return Boolean;
       function  Full  return Boolean;
+   private
+      Data     :  Store;
+      Next_In  :  Index   := 0; -- next new item
+      Last_In  :  Index   := 0; -- newest item in buffer
+      Next_Out :  Index   := 0; -- oldest item in buffer
+      Count    :  Natural := 0;
    end OBCS;
 
    -- Provided interface
-   procedure Insert  (M: in  Measurement) is
+   procedure Put  (M: in  Measurement) is
    begin
-      OBCS.Insert(M);
-   end Insert;
+      OBCS.Put(M);
+   end Put;
 
-   procedure Extract (M: out Measurement) is
+   procedure Get (M: out Measurement) is
    begin
-      OBCS.Extract(M);
-   end Extract;
+      OBCS.Get(M);
+   end Get;
+
+   function Last return Measurement is
+   begin
+      return OBCS.Last;
+   end Last;
 
    function  Empty return Boolean is
    begin
@@ -42,32 +55,45 @@ package body Buffer is
       return OBCS.Full;
    end Full;
 
-   -- OPCS
-   B : Measurement_Buffers.Buffer(Capacity => Buffer_Capacity);
-   -- operations provided by package Measurement_Buffers
-
    -- OBCS body
 
    protected body OBCS is
 
-      procedure Insert(M: in  Measurement) is
+      procedure Put (M: in  Measurement) is
       begin
-         B.Insert(M);
-      end Insert;
+         Data(Next_In) := M;
+         Last_In := Next_In;
+         Next_In := Next_In + 1;
+         if Count < Capacity then
+            Count   := Count + 1;
+         else -- buffer full, forget oldest measurement
+            Next_Out := Next_Out + 1;
+         end if;
+      end Put;
 
-      procedure Extract (M: out Measurement) is
+      procedure Get (M: out Measurement) is
       begin
-         B.Remove(M);
-      end Extract;
+         if Empty then
+            raise Constraint_Error;
+         end if;
+         M := Data(Next_Out);
+         Next_Out := Next_Out + 1;
+         Count := Count - 1;
+      end Get;
+
+      function Last return Measurement is
+      begin
+        return data(Last_In);
+      end Last;
 
       function Empty return Boolean is
       begin
-         return B.Empty;
+         return Count = 0;
       end Empty;
 
       function Full return Boolean is
       begin
-         return B.Full;
+         return Count = Capacity;
       end Full;
 
    end OBCS;

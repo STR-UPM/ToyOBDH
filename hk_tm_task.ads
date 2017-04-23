@@ -1,16 +1,16 @@
 --------------------------------------------------------------------------------
 -- $Id$
--- Project SCADA
--- Check task specification
--- Copyright (c) 2008 Juan Antonio de la Puente <jpuente@dit.upm.es>
+-- Project OBSW
+-- HK TM task specification
+-- Copyright (c) 2017 Juan Antonio de la Puente <jpuente@dit.upm.es>
 -- Permission to copy and modify are granted under the terms of
 -- the GNU General Public License (GPL).
 -- See http://www.gnu.org/licenses/licenses.html#GPL for the details
 --------------------------------------------------------------------------------
 with System;
-package Check_Task is -- sporadic
+package HK_TM_Task is -- sporadic
 
-   Separation : Natural := 1_000; -- ms
+   Separation : Natural :=  1000; -- ms
    Deadline   : Natural :=    30; -- ms
    WCET       : Natural;
 
@@ -22,4 +22,4 @@ package Check_Task is -- sporadic
 
    procedure Start;
 
-end Check_Task;
+end HK_TM_Task;

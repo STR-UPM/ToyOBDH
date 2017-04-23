@@ -6,8 +6,7 @@
 -- the GNU General Public License (GPL).
 -- See http://www.gnu.org/licenses/licenses.html#GPL for the details
 --------------------------------------------------------------------------------
-with Temperatures, Measurements;
-use Temperatures, Measurements;
+with Measurements; use Measurements;
 with Ada.Calendar; use Ada.Calendar;
 package Screen is -- protected
 

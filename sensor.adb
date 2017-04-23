@@ -1,13 +1,13 @@
 -- $Id$
 --------------------------------------------------------------------------------
--- Project SCADA
--- Temperature sensor body
--- Copyright (c) 2008 Juan Antonio de la Puente <jpuente@dit.upm.es>
+-- Project OBDH
+-- Temperature sensor body -- simulation version
+-- Copyright (c) 20q7 Juan Antonio de la Puente <jpuente@dit.upm.es>
 -- Permission to copy and modify are granted under the terms of
 -- the GNU General Public License (GPL).
 -- See http://www.gnu.org/licenses/licenses.html#GPL for the details
 --------------------------------------------------------------------------------
-with Temperatures; use Temperatures;
+with Measurements; use Measurements;
 with Ada.Calendar; use Ada.Calendar;
 with Ada.Numerics.Elementary_Functions, Ada.Numerics.Float_Random;
 use Ada.Numerics,

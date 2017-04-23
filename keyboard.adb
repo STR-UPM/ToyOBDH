@@ -7,7 +7,7 @@
 -- the GNU General Public License (GPL).
 -- See http://www.gnu.org/licenses/licenses.html#GPL for the details
 --------------------------------------------------------------------------------
-with Check_Task;
+with HK_TM_Task;
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Characters.Handling; use Ada.Characters.Handling;
 package body Keyboard is -- sporadic
@@ -25,7 +25,7 @@ package body Keyboard is -- sporadic
       loop
          Get_Immediate(C);
          if To_Upper(C) = 'C' then
-            Check_Task.Start;
+            HK_TM_Task.Start;
          end if;
       end loop;
    end Thread;
