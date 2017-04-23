@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
--- $Id: keyboard.adb 59 2017-04-21 12:10:34Z jpuente $
+-- $Id$
 -- Project SCADA
 -- Keyboard body
 -- Copyright (c) 2008 Juan Antonio de la Puente <jpuente@dit.upm.es>

@@ -1,4 +1,4 @@
--- $Id: reader_task.ads 8 2009-10-02 09:56:55Z jpuente $
+-- $Id$
 --------------------------------------------------------------------------------
 -- Project SCADA
 -- Reader task specification

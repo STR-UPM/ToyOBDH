@@ -1,4 +1,4 @@
--- $Id: display_task.adb 8 2009-10-02 09:56:55Z jpuente $
+-- $Id$
 -- Project SCADA
 -- Display task body
 -- Copyright (c) 2008 Juan Antonio de la Puente <jpuente@dit.upm.es>

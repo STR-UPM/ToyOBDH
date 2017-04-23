@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
--- $Id: scada.adb 59 2017-04-21 12:10:34Z jpuente $
+-- $Id$
 -- Project OBDH
 -- Main procedure body
 -- Copyright (c) 2017 Juan Antonio de la Puente <jpuente@dit.upm.es>
