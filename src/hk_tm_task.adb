@@ -7,7 +7,9 @@
 -- the GNU General Public License (GPL).
 -- See http://www.gnu.org/licenses/licenses.html#GPL for the details
 --------------------------------------------------------------------------------
-with Buffer, Screen, Measurements;
+with Buffer, TM, Measurements;
+with Ada.Real_Time;
+
 package body HK_TM_Task is -- sporadic
 
    --------------------
@@ -30,7 +32,7 @@ package body HK_TM_Task is -- sporadic
 
    -- OPCS
    package OPCS is
-      procedure Check;  -- sporadic activity
+      procedure Send_HK_Data;  -- sporadic activity
    end OPCS;
 
    ------------------------
@@ -67,27 +69,27 @@ package body HK_TM_Task is -- sporadic
    begin
       loop
          OBCS.Wait;
-         OPCS.Check;
+         OPCS.Send_HK_Data;
       end loop;
    end Thread;
 
    -- OPCS
    package body OPCS is
 
-      procedure Check is
-         use Measurements;
+      procedure Send_HK_Data is
+         use Measurements, TM;
          M : Measurement;
+         Message : TM_Message(HK);
       begin
-         Screen.Put("------ stored measurements ------");
-         Screen.New_Line;
-         while not Buffer.Empty loop
+         Message.Timestamp := Ada.Real_Time.Clock;
+         for I in Message.Data_Log'Range loop
+            exit when Buffer.Empty;
             Buffer.Get(M);
-            Screen.Put(M);
-            Screen.New_Line;
+            Message.Data_Log(I) := M;
+            Message.Length := I;
          end loop;
-         Screen.Put("------ end -----------------------");
-         Screen.New_Line;
-      end Check;
+         TM.Send(Message);
+      end Send_HK_Data;
 
    end OPCS;
 

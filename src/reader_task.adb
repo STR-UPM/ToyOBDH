@@ -7,7 +7,7 @@
 -- the GNU General Public License (GPL).
 -- See http://www.gnu.org/licenses/licenses.html#GPL for the details
 --------------------------------------------------------------------------------
-with Parameters, Measurements, Sensor, Buffer, Screen;
+with Parameters, Measurements, Sensor, Buffer, TM;
 with Ada.Real_Time;
 
 package body Reader_Task is -- cyclicn
@@ -56,7 +56,6 @@ package body Reader_Task is -- cyclicn
          Sensor.Get(T);
          M := (Value => T, Timestamp => Ada.Real_Time.Clock);
          Buffer.Put(M);
-         Screen.Put(M.Value); Screen.New_Line;
       end Read;
 
    end OPCS;

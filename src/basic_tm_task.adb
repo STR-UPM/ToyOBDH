@@ -6,10 +6,9 @@
 -- the GNU General Public License (GPL).
 -- See http://www.gnu.org/licenses/licenses.html#GPL for the details
 --------------------------------------------------------------------------------
-with Parameters, Measurements, Buffer;
+with Parameters, Measurements, Buffer, TM;
 with Ada.Real_Time;
-with Ada.Calendar;
-with Screen;
+
 package body Basic_TM_Task is -- cyclic
 
    --------------------
@@ -49,11 +48,12 @@ package body Basic_TM_Task is -- cyclic
    package body OPCS is
 
       procedure Basic_TM is
-         use Measurements, Ada.Real_Time;
-         M  : Measurement;
+         use TM;
+         Message : TM_Message(Basic);
       begin
-         M := Buffer.Last;
-         Screen.Put(M);
+         Message.Timestamp := Ada.Real_Time.Clock;
+         Message.Data      := Buffer.Last;
+         TM.Send(Message);
       end Basic_TM;
 
    end OPCS;

@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- $Id$
--- Project SCADA
--- Keyboard body
+-- Project OBSW
+-- TC_Task body -- simulatin version
 -- Copyright (c) 2008 Juan Antonio de la Puente <jpuente@dit.upm.es>
 -- Permission to copy and modify are granted under the terms of
 -- the GNU General Public License (GPL).
@@ -10,10 +10,7 @@
 with HK_TM_Task;
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Characters.Handling; use Ada.Characters.Handling;
-package body Keyboard is -- sporadic
-
-   -- This a special component which emulates a keyboard
-   -- interrupt
+package body TC_Task is -- sporadi
 
    task Thread is
       pragma Priority(Thread_Priority);
@@ -30,4 +27,4 @@ package body Keyboard is -- sporadic
       end loop;
    end Thread;
 
-end Keyboard;
+end TC_Task;

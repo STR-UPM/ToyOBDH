@@ -21,4 +21,10 @@ package Measurements is
          Timestamp : Time;
       end record;
 
+   -- Length of housekeeping history log to be sent to ground
+   HK_Length : constant Positive := 5;
+
+   -- Data for HK TM messages
+   type HK_Data is array (1..HK_Length) of Measurement;
+
 end Measurements;
