@@ -131,7 +131,7 @@ package body TM is
          when Housekeeping =>
             pragma Debug (System.IO.Put_Line("HK ---------"));
             for i in 1..Message.Length loop
-               pragma Debug (System.IO.Put_Line("      "
+               pragma Debug (System.IO.Put_Line("   "
                              & Message.Data_Log(i).Value'Img));
             end loop;
             pragma Debug (System.IO.Put_Line("-------------"));
