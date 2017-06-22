@@ -1,10 +1,7 @@
--- $Id$
 project OBDH is
 
    for Source_Dirs use ("src");
-   for Ignore_Source_Sub_Dirs use (".svn");
    for Object_Dir use "obj";
-   for Exec_Dir use ".";
    for Main use ("obdh.adb");
 
    package Builder is
@@ -15,12 +12,6 @@ project OBDH is
    package Compiler is
       for Default_Switches ("ada") use ("-g", "-gnata", "-gnat12");
    end Compiler;
-
-   package Ide is
-      for Vcs_Kind use "Subversion";
-      for Vcs_Repository_Root use "https://polaris.dit.upm.es/repos-str/strl";
-      for Vcs_Patch_Root use "toy_obdh";
-   end Ide;
 
 end OBDH;
 
