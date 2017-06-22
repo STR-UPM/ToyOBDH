@@ -1,71 +1,142 @@
--- $Id$
--- Project OBSW
--- TM body - simulation version
--- Copyright (c) 2017 Juan Antonio de la Puente <jpuente@dit.upm.es>
--- Permission to copy and modify are granted under the terms of
--- the GNU General Public License (GPL).
--- See http://www.gnu.org/licenses/licenses.html#GPL for the details
---------------------------------------------------------------------------------
-with Measurements;
-with Ada.Real_Time;
-with System.IO;
+--                                                                          --
+--          Copyright (C) 2017, Universidad Politécnica de Madrid           --
+--                                                                          --
+--  Redistribution and use in source and binary forms, with or without      --
+--  modification, are permitted provided that the following conditions are  --
+--  met:                                                                    --
+--     1. Redistributions of source code must retain the above copyright    --
+--        notice, this list of conditions and the following disclaimer.     --
+--     2. Redistributions in binary form must reproduce the above copyright --
+--        notice, this list of conditions and the following disclaimer in   --
+--        the documentation and/or other materials provided with the        --
+--        distribution.                                                     --
+--     3. Neither the name of the copyright holder nor the names of its     --
+--        contributors may be used to endorse or promote products derived   --
+--        from this software without specific prior written permission.     --
+--                                                                          --
+--   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS    --
+--   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT      --
+--   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR  --
+--   A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT   --
+--   HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, --
+--   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT       --
+--   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,  --
+--   DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY  --
+--   THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT    --
+--   (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE  --
+--   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.   --
+--                                                                          --
+------------------------------------------------------------------------------
+
+--  The implementation of the TM package uses sockets to send telemetry
+--  messages to the ground station. The IP address and port to which the
+--  messages are sent are defined in the IP package. Edit and recompile
+--  as necessary to adapt to the real GS address.
+
+with IP;
+
+with Measurements;    use Measurements;
+
+with Ada.Streams;     use Ada.Streams;
+with GNAT.Sockets;    use GNAT.Sockets;
+
+with Ada.Unchecked_Conversion;
+
+with System;
+
+pragma Warnings(Off);
+with System.IO; -- for debugging
+pragma Warnings(On);
 
 package body TM is
-   use  Measurements;
 
-   -- OBCS
-   protected OBCS is
+   ----------------------------------
+   -- Transmitter protected object --
+   ----------------------------------
+
+   protected Transmitter
+     with Priority => System.Priority'Last
+   -- replace with ceiling priority when available
+   is
       procedure Send (Message : TM_Message);
-   end OBCS;
+   end Transmitter;
+   --  The send operation is encapsulated in a protected object because
+   --  it can be called by the Basic_TM and Log_TM tasks.
 
-   -- Provided interface
+   ----------
+   -- Send --
+   ----------
+
    procedure Send (Message : TM_Message) is
    begin
-      OBCS.Send(Message);
+      Transmitter.Send(Message);
    end Send;
 
-   -- OPCS
-   package OPCS is
-      procedure Send (Message : TM_Message);
-   end OPCS;
+   --------------------------
+   --  Internal procedures --
+   --------------------------
 
-   ------------
-   -- Bodies --
-   ------------
+   procedure Send_Socket (Message : TM_Message);
+   -- Send a message trough an IP socket
 
-   protected body OBCS is
+   ----------------------
+   -- Transmitter body --
+   ----------------------
+
+   protected body Transmitter is
 
       procedure Send (Message : TM_Message) is
       begin
-         OPCS.Send(Message);
-      end Send;
-   end OBCS;
-
-   package body OPCS is
-
-      procedure Send (Message : TM_Message) is
-         use Ada.Real_Time;
-
-         SC : Seconds_Count;
-         TS : Time_Span;
-         M  : Measurement;
-      begin
-         case Message.Kind is
-            when Basic =>
-               M := Message.Data;
-               Split(M.Timestamp, SC, TS);
-               System.IO.Put_Line(SC'Img & " " & M.Value'Img);
-            when HK =>
-               System.IO.Put_Line("----- HK data -----");
-               for i in 1..Message.Length loop
-                  M := Message.Data_Log(i);
-                  Split(M.Timestamp, SC, TS);
-                  System.IO.Put_Line(SC'Img & " " & M.Value'Img);
-               end loop;
-               System.IO.Put_Line("--------------------");
-         end case;
+         Send_Socket (Message);
       end Send;
 
-   end OPCS;
+   end Transmitter;
+
+   -----------------
+   -- Send_Socket --
+   -----------------
+
+   procedure Send_Socket (Message : TM_Message) is
+
+      Socket         : Socket_Type;
+      GS_Address     : Sock_Addr_Type;
+
+      subtype TM_Stream is
+        Ada.Streams.Stream_Element_Array (1..TM_Message'Size/8);
+
+      function To_Stream is new Ada.Unchecked_Conversion
+        (TM_Message, TM_Stream);
+
+      Stream : TM_Stream := To_Stream(Message);
+      Last   : Ada.Streams.Stream_Element_Offset;
+
+   begin
+      -- Create UDP socket
+      Create_Socket (Socket, Family_Inet, Socket_Datagram);
+
+      -- Destination address for TM
+      GS_Address := (Family => Family_Inet,
+                     Addr   => IP.GS_IP,
+                     Port   => IP.GS_Port
+                    );
+
+      -- Send message
+      Send_Socket(Socket, Stream, Last, GS_Address);
+      Close_Socket(Socket);
+
+      -- Log message
+      case Message.Kind is
+         when Basic =>
+            pragma Debug (System.IO.Put_Line("TM " & Message.Data.Value'Img));
+         when Housekeeping =>
+            pragma Debug (System.IO.Put_Line("HK ---------"));
+            for i in 1..Message.Length loop
+               pragma Debug (System.IO.Put_Line("      "
+                             & Message.Data_Log(i).Value'Img));
+            end loop;
+            pragma Debug (System.IO.Put_Line("-------------"));
+      end case;
+
+   end Send_Socket;
 
 end TM;

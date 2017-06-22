@@ -29,30 +29,65 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Measurements;  use Measurements;
-with Ada.Real_Time; use Ada.Real_Time;
+with Measurements;   use Measurements;
+with TM;             use TM;
+with Buffer;
+with Ada.Real_Time;  use Ada.Real_Time;
 
--- Telemetry messages
+package body HK_TM is -- sporadic
 
-package TM is -- protected
+   -------------------------
+   -- Internal operations --
+   -------------------------
 
-   type TM_Type is (Basic, Housekeeping);
-   -- Basic TM contais the last temperature value
-   -- Housekeeping TM contains an array with last temperature values
+   procedure Send_HK_Data;
 
-   type TM_Message (Kind : TM_Type) is
-      record
-         Timestamp : Time;
-         case Kind is
-            when Basic =>
-               Data  : Measurement;
-            when Housekeeping =>
-               Data_Log  : HK_Data;
-               Length    : Positive;
-         end case;
-      end record;
+   ------------------
+   -- Request body --
+   ------------------
 
-   procedure Send (Message : TM_Message);
-   -- Send a telemetry message
+   protected body Request is
 
-end TM;
+      procedure Signal is
+      begin
+         Pending := True;
+      end Signal;
+
+      entry Wait when Pending is
+      begin
+         Pending := False;
+      end Wait;
+
+   end Request;
+
+   ---------------------
+   -- HK_TM_Task body --
+   ---------------------
+
+   task body  HK_TM_Task is
+   begin
+      loop
+         Request.Wait;
+         Send_HK_Data;
+      end loop;
+   end HK_TM_Task;
+
+   ------------------
+   -- Send_HK_Data --
+   ------------------
+
+   procedure Send_HK_Data is
+      M       : Measurement;
+      Message : TM_Message(Housekeeping);
+   begin
+      Message.Timestamp := Clock;
+      for I in Message.Data_Log'Range loop
+         exit when Buffer.Empty;
+         Buffer.Get(M);
+         Message.Data_Log(I) := M;
+         Message.Length := I;
+      end loop;
+      TM.Send(Message);
+   end Send_HK_Data;
+
+end HK_TM;

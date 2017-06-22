@@ -29,30 +29,36 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Measurements;  use Measurements;
-with Ada.Real_Time; use Ada.Real_Time;
+--  Housekeeping telemetry task. This task sends a TM message to the ground
+--  station on request when a TC is received.
 
--- Telemetry messages
+with System;
 
-package TM is -- protected
+package HK_TM is -- sporadic
 
-   type TM_Type is (Basic, Housekeeping);
-   -- Basic TM contais the last temperature value
-   -- Housekeeping TM contains an array with last temperature values
+   Separation  : Natural :=  1000; -- ms
+   Deadline    : Natural :=    30; -- ms
+   WCET        : Natural;          -- TBC after WCET analysis
+   Start_Delay : Natural := 1000; -- ms
 
-   type TM_Message (Kind : TM_Type) is
-      record
-         Timestamp : Time;
-         case Kind is
-            when Basic =>
-               Data  : Measurement;
-            when Housekeeping =>
-               Data_Log  : HK_Data;
-               Length    : Positive;
-         end case;
-      end record;
+   procedure Send;
 
-   procedure Send (Message : TM_Message);
-   -- Send a telemetry message
+private
 
-end TM;
+   task HK_TM_Task
+     with Priority =>  System.Default_Priority;
+   -- replace with DMS priority when available
+
+   protected Request
+     with  Priority => System.Priority'Last
+   -- replace with ceiling prority when available
+   is
+      procedure Signal;
+      entry Wait;
+   private
+      Pending : Boolean := False;
+   end Request;
+
+   procedure Send renames Request.Signal;
+
+end HK_TM;

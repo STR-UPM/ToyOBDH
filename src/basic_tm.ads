@@ -29,30 +29,23 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Measurements;  use Measurements;
-with Ada.Real_Time; use Ada.Real_Time;
+-- Basic telemetry task. This task sends a TM message to the ground station
+-- with the last temperature value every 5 s.
 
--- Telemetry messages
+with System;
 
-package TM is -- protected
+package Basic_TM is -- cyclic
+   pragma Elaborate_Body;
 
-   type TM_Type is (Basic, Housekeeping);
-   -- Basic TM contais the last temperature value
-   -- Housekeeping TM contains an array with last temperature values
+   Period   : Natural    := 5000; -- ms
+   Deadline : Natural    :=   50; -- ms
+   WCET     : Natural;            -- TBC after WCET analysis
+   Start_Delay : Natural := 1000; -- ms
 
-   type TM_Message (Kind : TM_Type) is
-      record
-         Timestamp : Time;
-         case Kind is
-            when Basic =>
-               Data  : Measurement;
-            when Housekeeping =>
-               Data_Log  : HK_Data;
-               Length    : Positive;
-         end case;
-      end record;
+private
 
-   procedure Send (Message : TM_Message);
-   -- Send a telemetry message
+   task Basic_TM_Task
+     with Priority => System.Default_Priority;
+   -- replace with DMS priority when available
 
-end TM;
+end Basic_TM;

@@ -29,30 +29,77 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Measurements;  use Measurements;
-with Ada.Real_Time; use Ada.Real_Time;
+--  This implementation uses IP sockets. The task listens on an IP port,
+--  and when a telecommand arrives it executes it.
 
--- Telemetry messages
+--  The port address is defined in the IP package. Edit and recompile
+--  if necessary.
 
-package TM is -- protected
+with IP;
 
-   type TM_Type is (Basic, Housekeeping);
-   -- Basic TM contais the last temperature value
-   -- Housekeeping TM contains an array with last temperature values
+with HK_TM;
 
-   type TM_Message (Kind : TM_Type) is
-      record
-         Timestamp : Time;
-         case Kind is
-            when Basic =>
-               Data  : Measurement;
-            when Housekeeping =>
-               Data_Log  : HK_Data;
-               Length    : Positive;
-         end case;
-      end record;
+with Ada.Real_Time;           use Ada.Real_Time;
+with Ada.Streams;             use Ada.Streams;
+with Ada.Characters.Handling; use Ada.Characters.Handling;
+with GNAT.Sockets;            use GNAT.Sockets;
 
-   procedure Send (Message : TM_Message);
-   -- Send a telemetry message
+with Ada.Unchecked_Conversion;
 
-end TM;
+pragma Warnings(Off);
+with System.IO; -- for debugging
+pragma Warnings (On);
+
+package body TC_Receiver is -- sporadic
+   use GNAT.Sockets;
+   use Ada.Real_Time;
+
+   Socket   : Socket_Type;
+   Address  : Sock_Addr_Type;
+   From     : Sock_Addr_Type;
+
+
+   task body TC_Receiver_Task is
+
+      subtype TC_Stream is
+        Stream_Element_Array (1..TC_Message'Size/8); -- bytes
+      function To_TC_Message is new Ada.Unchecked_Conversion
+        (TC_Stream, TC_Message);
+
+      Data : TC_Stream;
+      Last : Ada.Streams.Stream_Element_Offset;
+
+   begin
+      delay until Clock + Milliseconds(Start_Delay);
+
+      -- Create UDP socket
+      Create_Socket(Socket, Family_Inet, Socket_Datagram);
+
+      -- Local address for receiving TC
+      Address := (Family => Family_Inet,
+                  Addr   => Any_Inet_Addr,
+                  Port   => Port_Type(IP.TC_Port));
+      Bind_Socket (Socket, Address);
+
+      pragma Debug (System.IO.Put_Line("... listening on port "
+                    & Address.Port'Img));
+
+      -- Get telecommands
+      loop
+         Receive_Socket (Socket, Data, Last, From);
+         declare
+            Command : TC_Message :=  To_TC_Message(Data);
+         begin
+            -- System.IO.Put_Line("TC " & Command.Kind'Img);
+            case Command.Kind is
+               when HK =>
+                  HK_TM.Send;
+               when others =>
+                  null;
+            end case;
+         end;
+      end loop;
+
+   end TC_Receiver_Task;
+
+end TC_Receiver;

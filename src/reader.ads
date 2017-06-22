@@ -29,30 +29,20 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Measurements;  use Measurements;
-with Ada.Real_Time; use Ada.Real_Time;
+--  This package contains the task that reads the temperature sensor
+--  evey 1 s. The value read is stored in the buffer component.
 
--- Telemetry messages
+with System;
 
-package TM is -- protected
+package Reader is  -- cyclic
 
-   type TM_Type is (Basic, Housekeeping);
-   -- Basic TM contais the last temperature value
-   -- Housekeeping TM contains an array with last temperature values
+   Period      : Natural    := 1000; -- ms
+   Deadline    : Natural    :=  100; -- ms
+   WCET        : Natural;            -- TBC after WCET analysis
+   Start_Delay : Natural    := 1000; -- ms
 
-   type TM_Message (Kind : TM_Type) is
-      record
-         Timestamp : Time;
-         case Kind is
-            when Basic =>
-               Data  : Measurement;
-            when Housekeeping =>
-               Data_Log  : HK_Data;
-               Length    : Positive;
-         end case;
-      end record;
+   task Reader_Task
+     with Priority => System.Default_Priority;
+   -- replace with DMS priority when available
 
-   procedure Send (Message : TM_Message);
-   -- Send a telemetry message
-
-end TM;
+end Reader;

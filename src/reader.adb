@@ -1,4 +1,4 @@
-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 --                                                                          --
 --          Copyright (C) 2017, Universidad Politécnica de Madrid           --
 --                                                                          --
@@ -30,29 +30,44 @@
 ------------------------------------------------------------------------------
 
 with Measurements;  use Measurements;
+with Sensor;
+with Buffer;
 with Ada.Real_Time; use Ada.Real_Time;
 
--- Telemetry messages
+package body Reader is
 
-package TM is -- protected
+   -------------------------
+   -- Internal operations --
+   -------------------------
 
-   type TM_Type is (Basic, Housekeeping);
-   -- Basic TM contais the last temperature value
-   -- Housekeeping TM contains an array with last temperature values
+   procedure Read;
+   --  Read a value from a temperature sensor
 
-   type TM_Message (Kind : TM_Type) is
-      record
-         Timestamp : Time;
-         case Kind is
-            when Basic =>
-               Data  : Measurement;
-            when Housekeeping =>
-               Data_Log  : HK_Data;
-               Length    : Positive;
-         end case;
-      end record;
+   ----------------------
+   -- Reader task body --
+   ----------------------
 
-   procedure Send (Message : TM_Message);
-   -- Send a telemetry message
+   task body Reader_Task is -- cyclic
+      Next_Time : Time := Clock + Milliseconds(Start_Delay);
+   begin
+      loop
+         delay until Next_Time;
+         Read;
+         Next_Time := Next_Time + Milliseconds(Period);
+      end loop;
+   end Reader_Task;
 
-end TM;
+   ----------
+   -- Read --
+   ----------
+
+   procedure Read is
+      T  : Temperature;
+      M  : Measurement;
+   begin
+      Sensor.Get(T);
+      M := (Value => T, Timestamp => Clock);
+      Buffer.Put(M);
+   end Read;
+
+end Reader;

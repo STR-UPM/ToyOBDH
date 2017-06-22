@@ -29,30 +29,21 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Measurements;  use Measurements;
-with Ada.Real_Time; use Ada.Real_Time;
+--  IP addresses for communication with ground station
+--  Edit and recompile as necessary
 
--- Telemetry messages
+with GNAT.Sockets; use GNAT.Sockets;
 
-package TM is -- protected
+package IP is
 
-   type TM_Type is (Basic, Housekeeping);
-   -- Basic TM contais the last temperature value
-   -- Housekeeping TM contains an array with last temperature values
+   -- Communication ports for TC/TM.
+   -- Edit and recompile as necessary.
 
-   type TM_Message (Kind : TM_Type) is
-      record
-         Timestamp : Time;
-         case Kind is
-            when Basic =>
-               Data  : Measurement;
-            when Housekeeping =>
-               Data_Log  : HK_Data;
-               Length    : Positive;
-         end case;
-      end record;
+   -- Local port for receiving TC
+   TC_Port :Port_Type := 8484;
 
-   procedure Send (Message : TM_Message);
-   -- Send a telemetry message
+   -- Remote port to which TM messages are sent
+   GS_IP   : Inet_Addr_Type := Inet_Addr("127.0.0.1");
+   GS_Port : Port_Type      := 8485;        -- remote port for sending TM
 
-end TM;
+end IP;

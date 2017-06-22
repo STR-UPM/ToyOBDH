@@ -29,30 +29,30 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Measurements;  use Measurements;
+-- Task for receiving telecommands from ground station.
+
 with Ada.Real_Time; use Ada.Real_Time;
 
--- Telemetry messages
+with System;
 
-package TM is -- protected
+package TC_Receiver is -- sporadic
 
-   type TM_Type is (Basic, Housekeeping);
-   -- Basic TM contais the last temperature value
-   -- Housekeeping TM contains an array with last temperature values
+   Separation  : Natural :=  1000; -- ms
+   Deadline    : Natural :=    30; -- ms
+   WCET        : Natural;          -- TBC after WCET analysis
+   Start_Delay : Natural := 1000; -- ms
 
-   type TM_Message (Kind : TM_Type) is
+   type TC_Type is (HK);
+
+    type TC_Message(Kind : TC_Type) is
       record
          Timestamp : Time;
-         case Kind is
-            when Basic =>
-               Data  : Measurement;
-            when Housekeeping =>
-               Data_Log  : HK_Data;
-               Length    : Positive;
-         end case;
       end record;
 
-   procedure Send (Message : TM_Message);
-   -- Send a telemetry message
+private
 
-end TM;
+   task TC_Receiver_Task
+     with Priority =>  System.Default_Priority;
+   -- replace with DMS priority when available
+
+end TC_Receiver;
