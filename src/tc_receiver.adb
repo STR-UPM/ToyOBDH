@@ -51,15 +51,12 @@ with System.IO; -- for debugging
 pragma Warnings (On);
 
 package body TC_Receiver is -- sporadic
-   use GNAT.Sockets;
-   use Ada.Real_Time;
-
-   Socket   : Socket_Type;
-   Address  : Sock_Addr_Type;
-   From     : Sock_Addr_Type;
-
 
    task body TC_Receiver_Task is
+
+      Socket   : Socket_Type;
+      Address  : Sock_Addr_Type;
+      From     : Sock_Addr_Type;
 
       subtype TC_Stream is
         Stream_Element_Array (1..TC_Message'Size/8); -- bytes
@@ -83,7 +80,6 @@ package body TC_Receiver is -- sporadic
 
       pragma Debug (System.IO.Put_Line("... listening on port "
                     & Address.Port'Img));
-
       -- Get telecommands
       loop
          Receive_Socket (Socket, Data, Last, From);

@@ -29,7 +29,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  Data types for temeparature measurements
+--  Data types for temperature measurements
 
 with Ada.Real_Time;  use Ada.Real_Time;
 
@@ -45,10 +45,10 @@ package Measurements is
       end record
    with Pack;
 
-   -- Length of housekeeping history log to be sent to ground
    HK_Length : constant Positive := 5;
+   -- Length of housekeeping history log to be sent to ground
 
-   -- Data for housekeeping TM messages
    type HK_Data is array (1..HK_Length) of Measurement;
+   -- Data for housekeeping TM messages
 
 end Measurements;
