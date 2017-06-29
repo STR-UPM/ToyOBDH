@@ -74,21 +74,22 @@ The sensor code should appear as a directory under `/sys/bus/w1/devices/`. For e
 
 ```shell
 ls /sys/bus/w1/devices/
-10-000802824e58 w1_bus_master_1
+28-0516a0ef7bff w1_bus_master_1
 ```
-The code of the sensor in the example is "10-000802824e58". The temperature value is
+The code of the sensor in the example is "28-0516a0ef7bff". The temperature value is
 read by doing:
 
 ```shell
-cat /sys/bus/w1/devices/10-000802824e58/w1_slave
+cat /sys/bus/w1/devices/28-0516a0ef7bff/w1_slave
 ```
 which should give an output similar to:
 
 ```shell
-
+8c 01 4b 46 7f ff 0c 10 58 : crc=58 YES
+8c 01 4b 46 7f ff 0c 10 58 t=24750
 ```
 
-The temperature value in this example is 22.250 ºC.
+The temperature value in this example is 24.750 ºC.
 
 This setup is used by the software to read the temperature measured by the sensor
 from the sensor file. The above sensor code should changed as needed to match
