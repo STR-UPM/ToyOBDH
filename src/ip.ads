@@ -43,7 +43,7 @@ package IP is
    TC_Port :Port_Type := 8484;
 
    -- Remote port to which TM messages are sent
-   GS_IP   : Inet_Addr_Type := Inet_Addr("127.0.0.1");
+   GS_IP   : Inet_Addr_Type := Inet_Addr("192.168.4.16");
    GS_Port : Port_Type      := 8485;        -- remote port for sending TM
 
 end IP;

@@ -1,0 +1,1 @@
+export ENV_PREFIX=/usr/gnatpi/arm-linux-gnueabihf/sysroot

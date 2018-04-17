@@ -37,30 +37,27 @@ For details, see the `LICENSE` file in the root directory.
 The software is written in Ada 2012 and uses several features of this version
 of the language.
 
-The GNAT implementation pragma `Debug` and the GNAT library packages `System.IO`
-and `GNAT.Sockets` are used in the program.
+The GNAT implementation pragma `Debug` and the GNAT library packages
+ `System.IO` and `GNAT.Sockets` are used in the program.
 
-Building the program from with the sources requires a compiler supporting both Ada
-2012 and the GNAT-defined features. The "Debian gnat 4.9" compiler for ARM ELF 
-is one such compiler. It can installed on a Raspberry Pi running Raspbian Jessie 
-or later by entering the following command on a terminal:
+Building the program from with the sources requires a compiler supporting both
+Ada 2012 and the GNAT-defined features. The [GNAT GPL cross-compiler for
+ Raspberry Pi 2 Linux hosted on linux](https://www.adacore.com) has been used to compile this example. Please note that you should set the following environment variable before invoking GPS or gprbuild:
 
-```shell
-sudo apt-get install gnat
 ```
+export ENV_PREFIX=/usr/gnatpi/arm-linux-gnueabihf/sysroot
+```
+See the [GNAT User's Guide Supllement for Cross Platforms](https://docs.adacore.com/gnat_ugx-docs/html/gnat_ugx/gnat_ugx/cross_linux_topics.html) for further details.
 
-Once GNAT is installed, it can be used as a native compiler on the Rasbian OS.
-
+The executable file built with the cross-compiler on the host platform must be transferred to the Raspberry Pi target to be executed by any suitable means (e.g. `scp`)
 
 ## 5. Hardware and OS requirements
 
-The software has been tested on a Raspberry Pi 3B running Raspian Jessie. The
+The software has been tested on a Raspberry Pi 3B running Raspian Stretch. The
 platform must be configured to use whatever available internet connection,
 either ethernet or WIFI. 
 
-The software has been tested with a SunFounder DS18B20 temperature sensor, although
-it should not be too difficult to port it to other devices. The sensor is connected 
-to the 3.3 V, ground, and GPIO4 pins of the board.
+The software has been tested with a SunFounder DS18B20 temperature sensor, although it should not be too difficult to port it to other devices. The sensor is connected to the 3.3 V, ground, and GPIO4 pins of the board.
 
 The following commands must be entered in order to install the kernel  modules with 
 the required drivers:
