@@ -71,11 +71,12 @@ with Ada.Numerics.Float_Random;         use Ada.Numerics.Float_Random;
 package body Sensor is
 
    -- DS18B20 id code and value path
-   ID   : constant String := "28-0516a0ef7bff";
-   Path : constant String := "/sys/bus/w1/devices/"&ID&"/w1_slave";
-   File : File_Type;
+   ID    : constant String := "28-0516a0ef7bff";
+   Path  : constant String := "/sys/bus/w1/devices/"&ID&"/w1_slave";
+   File  : File_Type;
 
-   HW   : Boolean := False;
+   HW    : Boolean := False;
+   Noise : Generator;
 
    -- get temperature value from hw sensor
    procedure Get_HW (T : out Temperature) is
@@ -101,7 +102,6 @@ package body Sensor is
 
       -- Parameters for simulation
       T0    : Temperature :=  25.0; -- Celsius
-      Noise : Generator;
 
    begin
       T := T0 + Temperature(Random(Noise)) - 0.5;
